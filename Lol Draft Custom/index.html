@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Draft</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C89B3C;
+    --gold-light: #F0E6D3;
+    --gold-dim: #785A28;
+    --blue: #0AC8B9;
+    --blue-dark: #0593A2;
+    --red: #C8392B;
+    --bg: #010A13;
+    --bg2: #0A1628;
+    --bg3: #0D1E33;
+    --panel: #091428;
+    --border: #1E2D3D;
+    --text: #A3B3C0;
+    --text-light: #C8D6E0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-light);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(10,200,185,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(200,155,60,0.06) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h60v60H0z' fill='none'/%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='none' stroke='%231E2D3D' stroke-width='0.3' opacity='0.4'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--gold-dim);
+    padding: 24px 0;
+    background: linear-gradient(180deg, rgba(10,20,40,0.95) 0%, transparent 100%);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  header .container { display: flex; align-items: center; justify-content: space-between; }
+  .logo {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 0 30px rgba(200,155,60,0.4);
+  }
+  .logo span { color: var(--gold-light); }
+  nav { display: flex; gap: 8px; }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .nav-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    color: var(--gold-light);
+    border-color: var(--gold-dim);
+  }
+  .nav-btn:hover::after, .nav-btn.active::after { transform: scaleX(1); }
+
+  /* PAGES */
+  .page { display: none; padding: 48px 0; }
+  .page.active { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .section-title::before, .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim));
+  }
+  .section-title::after { background: linear-gradient(270deg, transparent, var(--gold-dim)); }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 600px; margin: 0 auto 32px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    font-weight: 600;
+  }
+  .form-group input, .form-group select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-light);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--gold-dim); }
+  .form-group input::placeholder { color: var(--border); }
+  .form-group select option { background: var(--bg3); }
+  .form-group.full { grid-column: 1 / -1; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold) 50%, var(--gold-dim) 100%);
+    color: var(--bg);
+  }
+  .btn-gold:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid rgba(200,57,43,0.4);
+    color: var(--red);
+    font-size: 11px;
+    padding: 6px 14px;
+    letter-spacing: 1px;
+  }
+  .btn-danger:hover { background: rgba(200,57,43,0.1); }
+  .btn-blue {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    color: var(--bg);
+  }
+  .btn-blue:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  /* PLAYER CARD */
+  .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 32px; }
+  .player-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .player-card:hover { border-color: var(--gold-dim); }
+  .player-card.selected { border-color: var(--gold); background: rgba(200,155,60,0.05); }
+  .player-card.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 8px; right: 10px;
+    color: var(--gold);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .rank-badge {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .rank-badge::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: 0.3;
+  }
+  .player-info { flex: 1; min-width: 0; }
+  .player-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .player-meta {
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 2px;
+    letter-spacing: 1px;
+  }
+  .player-pts {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* RANK COLORS */
+  .rank-iron { color: #8A8A8A; }
+  .rank-bronze { color: #AD5A20; }
+  .rank-silver { color: #A0B4C8; }
+  .rank-gold { color: #C89B3C; }
+  .rank-platinum { color: #38B8A0; }
+  .rank-emerald { color: #2ECC71; }
+  .rank-diamond { color: #5B9BD5; }
+  .rank-master { color: #9B59B6; }
+  .rank-grandmaster { color: #E74C3C; }
+  .rank-challenger { color: #F1C40F; }
+
+  /* ROLE ICONS */
+  .role-icon { font-size: 13px; }
+
+  /* DRAFT RESULTS */
+  .matches-container { display: flex; flex-direction: column; gap: 32px; }
+  .match-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .match-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, rgba(10,20,40,0.8), rgba(20,30,50,0.8));
+    border-bottom: 1px solid var(--border);
+  }
+  .match-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--gold);
+  }
+  .match-balance {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  .match-balance span { color: var(--blue); font-weight: 600; }
+  .teams-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .team {
+    padding: 20px 24px;
+  }
+  .team:first-child { border-right: 1px solid var(--border); }
+  .team-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .team-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    font-weight: 900;
+  }
+  .team-blue .team-name { color: var(--blue); }
+  .team-red .team-name { color: var(--red); }
+  .team-score {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .team-blue .team-score { color: var(--blue); }
+  .team-red .team-score { color: var(--red); }
+  .team-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+  }
+  .team-player:last-child { border-bottom: none; }
+  .team-player .player-name { font-size: 14px; font-weight: 600; }
+  .team-player .player-meta { font-size: 11px; }
+
+  /* ACTIONS BAR */
+  .actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--bg3);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-light);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 14px 24px;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 80px 24px;
+    color: var(--border);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); }
+  .empty-state p.sub { font-size: 12px; color: var(--border); margin-top: 8px; letter-spacing: 1px; text-transform: none; }
+
+  /* STATS */
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .stat-chip .val { color: var(--gold); font-weight: 700; font-family: 'Cinzel', serif; }
+
+  /* DIVIDER */
+  .vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold-dim);
+    letter-spacing: 4px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(200,57,43,0.03), rgba(10,200,185,0.03));
+  }
+
+  .center { text-align: center; }
+  .select-info {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text);
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .select-info span { color: var(--gold); font-weight: 700; }
+
+  /* Hide division for Master+ */
+  .no-division { display: none !important; }
+    .logo { font-size: 20px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .teams-grid { grid-template-columns: 1fr; }
+    .team:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo">Custom <span>Draft</span></div>
+    <nav>
+      <button class="nav-btn active" onclick="showPage('players')">Joueurs</button>
+      <button class="nav-btn" onclick="showPage('draft')">Draft</button>
+    </nav>
+  </div>
+</header>
+
+<!-- PAGE JOUEURS -->
+<div class="page active" id="page-players">
+  <div class="container">
+    <div class="section-title">Ajouter un joueur</div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Pseudo</label>
+        <input type="text" id="inp-name" placeholder="ShadowKiller99" maxlength="24">
+      </div>
+      <div class="form-group">
+        <label>Riot ID</label>
+        <input type="text" id="inp-riot" placeholder="ShadowKiller99#EUW" maxlength="32">
+      </div>
+      <div class="form-group">
+        <label>Rôle principal</label>
+        <select id="inp-role">
+          <option value="top">⚔️ Top</option>
+          <option value="jungle">🌿 Jungle</option>
+          <option value="mid">✨ Mid</option>
+          <option value="adc">🏹 ADC</option>
+          <option value="support">🛡️ Support</option>
+          <option value="fill">🔄 Fill</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Rang</label>
+        <select id="inp-rank">
+          <option value="iron">🔩 Iron</option>
+          <option value="bronze">🥉 Bronze</option>
+          <option value="silver">🥈 Silver</option>
+          <option value="gold">🥇 Gold</option>
+          <option value="platinum">💎 Platinum</option>
+          <option value="emerald">🌿 Emerald</option>
+          <option value="diamond">💠 Diamond</option>
+          <option value="master">👑 Master</option>
+          <option value="grandmaster">🔥 Grandmaster</option>
+          <option value="challenger">⚡ Challenger</option>
+        </select>
+      </div>
+      <div class="form-group" id="div-group">
+        <label>Division</label>
+        <select id="inp-div">
+          <option value="4">IV</option>
+          <option value="3">III)</option>
+          <option value="2">II)</option>
+          <option value="1">I)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="center">
+      <button class="btn btn-gold" onclick="addPlayer()">+ Ajouter le joueur</button>
+    </div>
+
+    <br><br>
+
+    <div class="section-title">Roster</div>
+
+    <div id="stats-bar" class="stats-bar"></div>
+    <div id="players-grid" class="players-grid"></div>
+  </div>
+</div>
+
+<!-- PAGE DRAFT -->
+<div class="page" id="page-draft">
+  <div class="container">
+    <div class="section-title">Sélectionner les joueurs</div>
+
+    <p class="select-info">Sélectionne les joueurs présents aujourd'hui — <span id="sel-count">0</span> sélectionné(s)</p>
+
+    <div id="draft-select-grid" class="players-grid"></div>
+
+    <div class="actions-bar">
+      <button class="btn btn-outline" onclick="selectAll()">Tous sélectionner</button>
+      <button class="btn btn-outline" onclick="clearSelection()">Tout déselectionner</button>
+      <button class="btn btn-gold" onclick="generateDraft()">⚔️ Générer le Draft</button>
+    </div>
+
+    <div id="matches-container" class="matches-container"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────
+const RANKS = {
+  iron:        { label: 'Iron',        base: 1,  icon: '🔩', cls: 'rank-iron',        hasDivision: true },
+  bronze:      { label: 'Bronze',      base: 2,  icon: '🥉', cls: 'rank-bronze',      hasDivision: true },
+  silver:      { label: 'Silver',      base: 3,  icon: '🥈', cls: 'rank-silver',      hasDivision: true },
+  gold:        { label: 'Gold',        base: 4,  icon: '🥇', cls: 'rank-gold',        hasDivision: true },
+  platinum:    { label: 'Platinum',    base: 5,  icon: '💎', cls: 'rank-platinum',    hasDivision: true },
+  emerald:     { label: 'Emerald',     base: 6,  icon: '🌿', cls: 'rank-emerald',     hasDivision: true },
+  diamond:     { label: 'Diamond',     base: 7,  icon: '💠', cls: 'rank-diamond',     hasDivision: true },
+  master:      { label: 'Master',      base: 8,  icon: '👑', cls: 'rank-master',      hasDivision: false },
+  grandmaster: { label: 'Grandmaster', base: 9,  icon: '🔥', cls: 'rank-grandmaster', hasDivision: false },
+  challenger:  { label: 'Challenger',  base: 10, icon: '⚡', cls: 'rank-challenger',  hasDivision: false },
+};
+
+// Division 4 = +0, Division 3 = +0.25, Division 2 = +0.5, Division 1 = +0.75
+function playerScore(p) {
+  const r = RANKS[p.rank];
+  if (!r.hasDivision) return r.base;
+  const div = parseInt(p.division || 4);
+  const bonus = (4 - div) * 0.25; // div4→0, div3→0.25, div2→0.5, div1→0.75
+  return r.base + bonus;
+}
+
+function rankLabel(p) {
+  const r = RANKS[p.rank];
+  if (!r.hasDivision) return r.label;
+  const divRoman = ['', 'I', 'II', 'III', 'IV'];
+  return `${r.label} ${divRoman[parseInt(p.division || 4)]}`;
+}
+
+const ROLES = {
+  top: '⚔️ Top', jungle: '🌿 Jungle', mid: '✨ Mid',
+  adc: '🏹 ADC', support: '🛡️ Support', fill: '🔄 Fill'
+};
+
+let players = JSON.parse(localStorage.getItem('laDraft_players') || '[]');
+let selected = new Set();
+
+function save() { localStorage.setItem('laDraft_players', JSON.stringify(players)); }
+
+// ─────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'draft') renderDraftSelect();
+}
+
+// ─────────────────────────────────────────
+// PLAYERS
+// ─────────────────────────────────────────
+function addPlayer() {
+  const name = document.getElementById('inp-name').value.trim();
+  const riot = document.getElementById('inp-riot').value.trim();
+  const role = document.getElementById('inp-role').value;
+  const rank = document.getElementById('inp-rank').value;
+
+  if (!name) { toast('Entre un pseudo !'); return; }
+
+  const player = { id: Date.now(), name, riot, role, rank };
+  players.push(player);
+  save();
+  renderPlayers();
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-riot').value = '';
+  toast('Joueur ajouté !');
+}
+
+function deletePlayer(id) {
+  players = players.filter(p => p.id !== id);
+  selected.delete(id);
+  save();
+  renderPlayers();
+}
+
+function renderPlayers() {
+  const grid = document.getElementById('players-grid');
+  const stats = document.getElementById('stats-bar');
+
+  if (players.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">⚔️</div>
+      <p>Aucun joueur enregistré</p>
+      <p class="sub">Ajoute tes potes ci-dessus pour commencer</p>
+    </div>`;
+    stats.innerHTML = '';
+    return;
+  }
+
+  const avgPts = (players.reduce((s,p) => s + RANKS[p.rank].pts, 0) / players.length).toFixed(1);
+  const topRank = players.reduce((a,b) => RANKS[a.rank].pts > RANKS[b.rank].pts ? a : b);
+
+  stats.innerHTML = `
+    <div class="stat-chip">Joueurs <span class="val">${players.length}</span></div>
+    <div class="stat-chip">Niveau moyen <span class="val">${avgPts} pts</span></div>
+    <div class="stat-chip">Top rank <span class="val">${RANKS[topRank.rank].icon} ${topRank.name}</span></div>
+  `;
+
+  grid.innerHTML = players.map(p => {
+    const r = RANKS[p.rank];
+    return `
+      <div class="player-card" style="cursor:default">
+        <div class="rank-badge ${r.cls}" style="font-size:22px">${r.icon}</div>
+        <div class="player-info">
+          <div class="player-name">${p.name}</div>
+          <div class="player-meta">${ROLES[p.role]} · ${r.label}</div>
+          ${p.riot ? `<div class="player-meta" style="opacity:0.6;font-size:11px">${p.riot}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div class="player-pts">${r.pts}pt</div>
+          <button class="btn btn-danger" onclick="deletePlayer(${p.id})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+// DRAFT SELECT
+// ─────────────────────────────────────────
+function renderDraftSelect() {
+  const grid = document.getElementById('draft-select-grid');
+  document.getElementById('matches-container').innerHTML = '';
+
+  if (players.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">👥</div>
+      <p>Aucun joueur enregistré</p>
+      <p class="sub">Va dans l'onglet Joueurs pour ajouter tes potes</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = players.map(p => {
+    const r = RANKS[p.rank];
+    const isSel = selected.has(p.id);
+    return `
+      <div class="player-card ${isSel ? 'selected' : ''}" onclick="toggleSelect(${p.id})" id="sel-${p.id}">
+        <div class="rank-badge ${r.cls}">${r.icon}</div>
+        <div class="player-info">
+          <div class="player-name">${p.name}</div>
+          <div class="player-meta">${ROLES[p.role]} · ${r.label}</div>
+        </div>
+        <div class="player-pts">${r.pts}pt</div>
+      </div>
+    `;
+  }).join('');
+
+  updateSelCount();
+}
+
+function toggleSelect(id) {
+  if (selected.has(id)) selected.delete(id);
+  else selected.add(id);
+  const card = document.getElementById('sel-' + id);
+  card.classList.toggle('selected', selected.has(id));
+  updateSelCount();
+}
+
+function selectAll() {
+  players.forEach(p => selected.add(p.id));
+  renderDraftSelect();
+}
+
+function clearSelection() {
+  selected.clear();
+  renderDraftSelect();
+}
+
+function updateSelCount() {
+  document.getElementById('sel-count').textContent = selected.size;
+}
+
+// ─────────────────────────────────────────
+// DRAFT ALGORITHM
+// ─────────────────────────────────────────
+function generateDraft() {
+  const pool = players.filter(p => selected.has(p.id));
+  if (pool.length < 2) { toast('Sélectionne au moins 2 joueurs !'); return; }
+
+  // Sort by pts descending (snake draft style)
+  const sorted = [...pool].sort((a, b) => RANKS[b.rank].pts - RANKS[a.rank].pts);
+  const numMatches = Math.ceil(pool.length / 10);
+  const matches = [];
+
+  // Chunk players into groups of ~10
+  for (let m = 0; m < numMatches; m++) {
+    const start = m * 10;
+    const group = sorted.slice(start, start + 10);
+    if (group.length < 2) {
+      // Merge odd player into last match
+      if (matches.length > 0) {
+        const last = matches[matches.length - 1];
+        // Add to smaller team
+        if (last.blue.length <= last.red.length) last.blue.push(group[0]);
+        else last.red.push(group[0]);
+      }
+      continue;
+    }
+    matches.push(balanceTeams(group));
+  }
+
+  renderMatches(matches);
+}
+
+function balanceTeams(group) {
+  // Try multiple random shuffles and pick the most balanced
+  let best = null;
+  let bestDiff = Infinity;
+  const n = group.length;
+  const half = Math.floor(n / 2);
+
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const shuffled = [...group].sort(() => Math.random() - 0.5);
+    const blue = shuffled.slice(0, half);
+    const red = shuffled.slice(half);
+    const diff = Math.abs(teamScore(blue) - teamScore(red));
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = { blue, red };
+      if (diff === 0) break;
+    }
+  }
+
+  return { ...best, diff: bestDiff };
+}
+
+function teamScore(team) {
+  return team.reduce((s, p) => s + RANKS[p.rank].pts, 0);
+}
+
+// ─────────────────────────────────────────
+// RENDER MATCHES
+// ─────────────────────────────────────────
+function renderMatches(matches) {
+  const container = document.getElementById('matches-container');
+
+  if (matches.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = matches.map((match, i) => {
+    const bScore = teamScore(match.blue);
+    const rScore = teamScore(match.red);
+    const diff = Math.abs(bScore - rScore);
+    const balance = diff === 0 ? '⚖️ Équilibré' : `Différence : ${diff} pt${diff > 1 ? 's' : ''}`;
+
+    return `
+      <div class="match-card">
+        <div class="match-header">
+          <div class="match-title">Match ${i + 1}</div>
+          <div class="match-balance">${balance === '⚖️ Équilibré' ? '<span>⚖️ Parfaitement équilibré</span>' : `Différence : <span>${diff} pt${diff > 1 ? 's' : ''}</span>`}</div>
+        </div>
+        <div class="teams-grid">
+          <div class="team team-blue">
+            <div class="team-header">
+              <div class="team-name">ÉQUIPE BLEUE</div>
+              <div class="team-score">${bScore} pts</div>
+            </div>
+            ${match.blue.map(p => playerRow(p)).join('')}
+          </div>
+          <div class="team team-red">
+            <div class="team-header">
+              <div class="team-name">ÉQUIPE ROUGE</div>
+              <div class="team-score">${rScore} pts</div>
+            </div>
+            ${match.red.map(p => playerRow(p)).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function playerRow(p) {
+  const r = RANKS[p.rank];
+  return `
+    <div class="team-player">
+      <div class="rank-badge ${r.cls}" style="width:32px;height:32px;font-size:16px">${r.icon}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name}</div>
+        <div class="player-meta">${ROLES[p.role]} · ${r.label}</div>
+      </div>
+      <div class="player-pts">${r.pts}pt</div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+renderPlayers();
+</script>
+</body>
+</html>
